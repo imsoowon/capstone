@@ -147,6 +147,10 @@
 - 다만 `occupation`은 `무직` 비중이 지나치게 높고(36.7%), `hobbies_and_interests_list` / `skills_and_expertise_list`는 표현이 정규화되어 있지 않아 그대로 세그먼트 태그로 쓰기엔 전처리(동의어 병합, 클러스터링)가 필요합니다.
 - 본 분석은 전체 100만 행을 대상으로 했으나, Colab 실행 시 `SAMPLE_SIZE`를 줄이면 결과가 다소 달라질 수 있습니다 (다만 표본 크기가 워낙 커서 인구통계 비율 자체는 안정적으로 유지됩니다).
 
+## 최애 주민
+
+100만 명 중 직접 뽑은 가상 도시 주민도 소개합니다 → [인상훈 씨 (24세, 수원 권선구, 육군 병사)](residents/인상훈.md)
+
 ## 출처
 
 - 데이터셋: [nvidia/Nemotron-Personas-Korea](https://huggingface.co/datasets/nvidia/Nemotron-Personas-Korea) (CC-BY-4.0)
