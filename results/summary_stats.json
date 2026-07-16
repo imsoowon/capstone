@@ -1,0 +1,39 @@
+{
+  "n_rows": 1000000,
+  "n_cols": 26,
+  "columns": [
+    "uuid",
+    "professional_persona",
+    "sports_persona",
+    "arts_persona",
+    "travel_persona",
+    "culinary_persona",
+    "family_persona",
+    "persona",
+    "cultural_background",
+    "skills_and_expertise",
+    "skills_and_expertise_list",
+    "hobbies_and_interests",
+    "hobbies_and_interests_list",
+    "career_goals_and_ambitions",
+    "sex",
+    "age",
+    "marital_status",
+    "military_status",
+    "family_type",
+    "housing_type",
+    "education_level",
+    "bachelors_field",
+    "occupation",
+    "district",
+    "province",
+    "country"
+  ],
+  "age": {
+    "mean": 50.660031,
+    "median": 51.0,
+    "std": 17.61299288300505,
+    "min": 19,
+    "max": 99
+  }
+}
