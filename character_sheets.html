@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>최애주민 캐릭터 시트</title>
+<style>
+  :root{--bg:#f4f1ea;--card:#fffdf8;--ink:#3a3226;--sub:#8a7f6c;
+    --line:#e4ddcd;--accent:#7bb26a;--chip:#efe9db;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;}
+  header{padding:32px 24px 8px;text-align:center;}
+  header h1{margin:0;font-size:26px;letter-spacing:-.5px;}
+  header p{margin:6px 0 0;color:var(--sub);font-size:14px;}
+  .wrap{max-width:1000px;margin:0 auto;padding:16px 20px 60px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:22px 24px;margin:22px 0;box-shadow:0 6px 20px rgba(120,105,70,.06);}
+  .card.star{border-color:var(--accent);box-shadow:0 6px 24px rgba(123,178,106,.18);}
+  .top{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;}
+  .name{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+  .meta{color:var(--sub);font-size:13px;}
+  .star-tag{background:var(--accent);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:20px;}
+  .views{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 6px;}
+  .view{background:linear-gradient(#fdfbf4,#f6f1e6);border:1px solid var(--line);
+    border-radius:14px;padding:8px 4px 4px;text-align:center;}
+  .view svg{width:100%;height:auto;max-height:210px;}
+  .view span{display:block;font-size:12px;color:var(--sub);margin-top:2px;font-weight:600;}
+  .persona{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px 22px;margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);}
+  .persona h4{margin:0 0 5px;font-size:12px;color:var(--accent);
+    text-transform:uppercase;letter-spacing:.6px;}
+  .persona p{margin:0;font-size:13.5px;line-height:1.55;}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+  .chip{background:var(--chip);border-radius:20px;padding:3px 10px;font-size:12px;}
+  footer{text-align:center;color:var(--sub);font-size:12px;padding:0 20px 40px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏝️ 최애주민 캐릭터 시트</h1>
+  <p>페르소나 에이전트 실험용 · 정면 / 왼쪽 / 오른쪽 / 뒷모습</p>
+</header>
+<div class="wrap" id="wrap"></div>
+<footer>모동숲풍 스타일라이즈드 일러스트(실사 아님) · 2번 멀티에이전트 시뮬레이션 페르소나로 재사용</footer>
+
+<script>
+const DIRS=["front","left","right","back"];
+const DIR_KO={front:"정면",left:"왼쪽",right:"오른쪽",back:"뒷모습"};
+const OL='stroke="#3a3226" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"';
+const OLt='stroke="#3a3226" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"';
+const OLn='stroke="#3a3226" stroke-linejoin="round" stroke-linecap="round" fill="none"';
+
+const shadow=()=>`<ellipse cx="100" cy="292" rx="46" ry="8" fill="rgba(90,70,40,.12)"/>`;
+
+/* ===================== 정면 ===================== */
+function bodyFront(c){return `
+  <rect x="82" y="232" width="16" height="54" rx="8" fill="${c.bottom}" ${OL}/>
+  <rect x="102" y="232" width="16" height="54" rx="8" fill="${c.bottom}" ${OL}/>
+  <ellipse cx="89" cy="285" rx="14" ry="8" fill="${c.shoe}" ${OL}/>
+  <ellipse cx="111" cy="285" rx="14" ry="8" fill="${c.shoe}" ${OL}/>
+  <rect x="49" y="156" width="18" height="58" rx="9" fill="${c.top}" ${OL}/>
+  <rect x="133" y="156" width="18" height="58" rx="9" fill="${c.top}" ${OL}/>
+  <circle cx="58" cy="216" r="9.5" fill="${c.skin}" ${OL}/>
+  <circle cx="142" cy="216" r="9.5" fill="${c.skin}" ${OL}/>
+  <rect x="89" y="122" width="22" height="26" rx="4" fill="${c.skin}" ${OL}/>
+  <path d="M60,168 Q60,150 84,146 L116,146 Q140,150 140,168 L138,244 Q100,253 62,244 Z" fill="${c.top}" ${OL}/>`;}
+
+function garmentsFront(c){let s="";
+  if(c.vest)s+=`<path d="M60,168 Q60,150 82,146 L82,248 Q70,247 62,244 Z" fill="${c.vest}" ${OLt}/>
+    <path d="M140,168 Q140,150 118,146 L118,248 Q130,247 138,244 Z" fill="${c.vest}" ${OLt}/>`;
+  if(c.apron)s+=`<path d="M78,150 Q100,144 122,150 L127,246 Q100,253 73,246 Z" fill="${c.apron}" ${OLt}/>
+    <path d="M82,150 L72,138 M118,150 L128,138" ${OLt}/>`;
+  if(c.towel)s+=`<path d="M82,148 Q100,164 118,148 L124,168 Q100,180 76,168 Z" fill="${c.towel}" ${OLt}/>`;
+  if(c.collar)s+=`<path d="M90,147 L100,162 L110,147" fill="#fff" ${OLt}/>`;
+  return s;}
+
+function hairFront(c){
+  const crown=`M52,90 A48,48 0 0 1 148,90 L148,80 Q148,64 122,62 Q100,58 78,62 Q52,64 52,80 Z`;
+  if(c.hair==="cap"){
+    return `<path d="${crown}" fill="${c.hairColor}" ${OLt}/>
+      <path d="M46,84 Q100,42 154,84 L154,74 Q150,52 100,50 Q50,52 46,74 Z" fill="${c.cap}" ${OL}/>
+      <path d="M44,84 Q68,78 90,82 L88,90 Q66,86 48,90 Z" fill="${c.cap}" ${OLt}/>
+      <ellipse cx="100" cy="49" rx="9" ry="5" fill="${c.cap}" ${OLt}/>`;
+  }
+  if(c.hair==="quiff"){
+    return `<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+      <path d="M72,64 Q82,40 106,52 Q94,46 84,52 Q76,56 72,66 Z" fill="${c.hairColor}" ${OLt}/>
+      <path d="M104,52 Q128,46 138,68 Q128,58 112,58 Q104,54 104,60 Z" fill="${c.hairColor}" ${OLt}/>`;
+  }
+  return `<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+    <path d="M52,80 Q50,120 56,150 Q62,120 60,86 Z" fill="${c.hairColor}" ${OLt}/>
+    <path d="M148,80 Q150,120 144,150 Q138,120 140,86 Z" fill="${c.hairColor}" ${OLt}/>
+    <path d="M100,60 Q90,66 80,64 Q92,54 100,56 Q108,54 120,64 Q110,66 100,60 Z" fill="${c.hairColor}" ${OLt}/>`;
+}
+
+function eyeF(x){return `<ellipse cx="${x}" cy="92" rx="4.2" ry="5.4" fill="#fff" ${OLt}/>
+  <circle cx="${x}" cy="92.8" r="3" fill="#2a2018"/><circle cx="${x-1.2}" cy="90.6" r="1.1" fill="#fff"/>`;}
+
+function faceFront(c){const old=c.age>65;
+  let s=eyeF(83)+eyeF(117);
+  s+=`<path d="M75,81 Q83,77 91,81" ${OLn} stroke-width="2.6"/>
+      <path d="M109,81 Q117,77 125,81" ${OLn} stroke-width="2.6"/>
+      <path d="M97,94 Q100,100 105,99" ${OLn} stroke-width="1.8"/>`;
+  if(old){s+=`<path d="M84,105 Q100,111 116,105 Q100,116 84,105 Z" fill="${c.hairColor}" ${OLt}/>
+      <path d="M88,120 Q100,124 112,120" ${OLn} stroke-width="2.2"/>
+      <path d="M60,86 Q64,88 66,86 M134,86 Q136,88 140,86" ${OLn} stroke-width="1.4" opacity=".6"/>`;}
+  else{s+=`<path d="M90,109 Q100,117 110,109" ${OLn} stroke-width="2.4"/>
+      <ellipse cx="72" cy="103" rx="6" ry="4" fill="#f6b8a0" opacity=".5"/>
+      <ellipse cx="128" cy="103" rx="6" ry="4" fill="#f6b8a0" opacity=".5"/>`;}
+  return s;}
+
+/* ===================== 옆모습(왼쪽) — 몸까지 프로필 ===================== */
+function bodySide(c){return `
+  <ellipse cx="90" cy="286" rx="18" ry="7" fill="${c.shoe}" ${OL}/>
+  <ellipse cx="100" cy="288" rx="18" ry="7" fill="${c.shoe}" ${OL}/>
+  <rect x="98" y="232" width="14" height="52" rx="7" fill="${c.bottom}" ${OL}/>
+  <rect x="104" y="234" width="14" height="52" rx="7" fill="${c.bottom}" ${OL}/>
+  <rect x="93" y="124" width="18" height="26" rx="4" fill="${c.skin}" ${OL}/>
+  <path d="M86,152 Q84,147 98,145 L110,145 Q120,148 120,158 Q123,190 116,226
+           Q100,234 90,226 Q83,190 86,158 Z" fill="${c.top}" ${OL}/>
+  <rect x="88" y="156" width="15" height="52" rx="7" fill="${c.top}" ${OL}/>
+  <circle cx="95" cy="210" r="9" fill="${c.skin}" ${OL}/>`;}
+
+function garmentsSide(c){let s="";
+  if(c.vest)s+=`<path d="M86,158 Q85,148 98,145 L100,228 Q92,228 89,224 Z" fill="${c.vest}" ${OLt}/>`;
+  if(c.apron)s+=`<path d="M90,150 Q104,146 116,152 L114,228 Q100,234 90,226 Z" fill="${c.apron}" ${OLt}/>`;
+  if(c.towel)s+=`<path d="M92,148 Q104,160 116,150 L120,168 Q104,176 90,166 Z" fill="${c.towel}" ${OLt}/>`;
+  if(c.collar)s+=`<path d="M96,146 L104,160 L112,148 Z" fill="#fff" ${OLt}/>`;
+  return s;}
+
+function headSide(c){
+  const old=c.age>65;
+  let s=`<path d="M53,84 Q42,92 54,101 Q59,97 55,91 Q59,87 55,82 Z" fill="${c.skin}" ${OL}/>`; // 코
+  s+=`<circle cx="100" cy="90" r="48" fill="${c.skin}" ${OL}/>`;
+  s+=`<ellipse cx="132" cy="94" rx="7.5" ry="10" fill="${c.skin}" ${OL}/>`; // 뒤쪽 귀
+  // 머리카락: 정수리~뒤통수를 감싸고 얼굴(왼쪽)은 비움
+  const crown=`M55,88 A46,46 0 0 1 146,92 L146,120 Q150,96 132,84 Q120,80 96,78 Q74,80 62,84 Z`;
+  if(c.hair==="cap"){
+    s+=`<path d="${crown}" fill="${c.hairColor}" ${OLt}/>
+      <path d="M50,84 Q104,44 152,90 L152,78 Q148,54 104,52 Q66,56 50,76 Z" fill="${c.cap}" ${OL}/>
+      <path d="M46,86 Q64,80 82,84 L80,92 Q62,88 48,92 Z" fill="${c.cap}" ${OLt}/>`;
+  }else if(c.hair==="quiff"){
+    s+=`<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+      <path d="M64,66 Q80,42 104,54 Q90,48 78,54 Q68,58 64,68 Z" fill="${c.hairColor}" ${OLt}/>`;
+  }else{
+    s+=`<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+      <path d="M138,96 Q152,116 146,150 Q136,150 132,120 Q138,104 132,98 Z" fill="${c.hairColor}" ${OLt}/>`;
+  }
+  // 얼굴
+  s+=`<ellipse cx="74" cy="92" rx="4" ry="5.2" fill="#fff" ${OLt}/>
+      <circle cx="73" cy="92.8" r="2.8" fill="#2a2018"/><circle cx="72" cy="90.8" r="1" fill="#fff"/>
+      <path d="M65,81 Q73,77 82,81" ${OLn} stroke-width="2.6"/>`;
+  if(old){s+=`<path d="M58,106 Q70,112 84,106 Q70,115 58,106 Z" fill="${c.hairColor}" ${OLt}/>
+      <path d="M60,120 Q72,124 84,120" ${OLn} stroke-width="2.2"/>`;}
+  else{s+=`<path d="M60,110 Q70,117 82,110" ${OLn} stroke-width="2.4"/>
+      <ellipse cx="66" cy="103" rx="5.5" ry="3.6" fill="#f6b8a0" opacity=".5"/>`;}
+  return s;}
+
+/* ===================== 뒷모습 ===================== */
+function hairBack(c){
+  let s=`<path d="M52,92 A48,48 0 0 1 148,92 L148,140 Q148,74 100,72 Q52,74 52,140 Z" fill="${c.hairColor}" ${OL}/>`;
+  if(c.hair==="cap"){
+    s+=`<path d="M46,86 Q100,44 154,86 L154,76 Q150,54 100,52 Q50,54 46,76 Z" fill="${c.cap}" ${OL}/>
+        <ellipse cx="100" cy="51" rx="9" ry="5" fill="${c.cap}" ${OLt}/>`;
+  }
+  if(c.hair==="long"){
+    s+=`<path d="M58,80 L60,152 M142,80 L140,152" stroke="${c.hairColor}" stroke-width="15" stroke-linecap="round"/>
+        <line x1="100" y1="66" x2="100" y2="150" ${OLt} opacity=".3"/>`;
+  }
+  return s;}
+
+/* ===================== 뷰 조립 ===================== */
+function svgFront(c){return `<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  ${shadow()}${bodyFront(c)}${garmentsFront(c)}
+  <ellipse cx="52" cy="92" rx="8" ry="11" fill="${c.skin}" ${OL}/>
+  <ellipse cx="148" cy="92" rx="8" ry="11" fill="${c.skin}" ${OL}/>
+  <circle cx="100" cy="90" r="48" fill="${c.skin}" ${OL}/>
+  ${hairFront(c)}${faceFront(c)}</svg>`;}
+
+function svgBack(c){return `<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  ${shadow()}${bodyFront(c)}
+  ${c.apron?`<rect x="82" y="164" width="36" height="6" rx="3" fill="${c.apron}" ${OLt}/><line x1="100" y1="170" x2="100" y2="244" ${OLt}/>`:""}
+  ${c.collar?`<path d="M88,146 h24 v7 h-24 Z" fill="#fff" ${OLt}/>`:""}
+  <ellipse cx="52" cy="92" rx="8" ry="11" fill="${c.skin}" ${OL}/>
+  <ellipse cx="148" cy="92" rx="8" ry="11" fill="${c.skin}" ${OL}/>
+  <circle cx="100" cy="90" r="48" fill="${c.skin}" ${OL}/>
+  ${hairBack(c)}
+  <path d="M88,80 Q100,88 112,80" stroke="rgba(0,0,0,.07)" stroke-width="2.5" fill="none"/></svg>`;}
+
+function svgSide(c,flip){
+  const inner=`${shadow()}${bodySide(c)}${garmentsSide(c)}${headSide(c)}`;
+  return `<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+    ${flip?`<g transform="translate(200,0) scale(-1,1)">${inner}</g>`:inner}</svg>`;}
+
+function render(c,dir){
+  if(dir==="front")return svgFront(c);
+  if(dir==="back")return svgBack(c);
+  if(dir==="left")return svgSide(c,false);
+  return svgSide(c,true);}
+
+/* ===================== 데이터 ===================== */
+const villagers=[
+{star:false,name:"전기태",meta:"74세 · 남 · 광주 서구 · 하역·적재 베테랑",
+ skin:"#d9a878",hairColor:"#d6d1c6",hair:"cap",cap:"#34506b",
+ top:"#9aa08c",vest:"#c67d2a",bottom:"#46464e",shoe:"#5b4632",towel:"#f2ede1",brow:"#b7b1a4",age:74,
+ persona:{성격:"투박·고집·성실·사교적. 의리와 눈치를 중시하고 무뚝뚝하지만 정이 많다.",
+   말투:"진한 전라도 사투리, 왁자지껄. 툴툴거리며 목소리 큼.",말버릇:["~잉","거시기","아, 참말로"],
+   관심사:["무등산 산책","목욕탕 정치토크","트로트","짜장면·탕수육","삼겹살+소주","경주·부여 역사여행"],
+   행동경향:["전통시장/맛집 방문","배달 주문(중식)","산책·목욕탕 방문","검색은 서툴러 사람에게 물어봄"]}},
+{star:false,name:"이다연",meta:"33세 · 여 · 제주시 · 음식 서비스 (보건복지 전공)",
+ skin:"#f0cdae",hairColor:"#3b2c24",hair:"long",cap:null,
+ top:"#e7e2d6",apron:"#7c8c6a",bottom:"#6d7385",shoe:"#cfc8ba",brow:"#4a382c",age:33,
+ persona:{성격:"조용·내향·세심·평온 지향. 갈등을 피하고 혼자 있는 시간에 충전한다.",
+   말투:"차분하고 나긋나긋. 제주 억양이 옅게 배어 있음.",말버릇:["음…","괜찮아요","그냥요"],
+   관심사:["사려니숲길 산책","인디 음악","잡지","요가·필라테스","오름·제주 유적","배달 치킨+맥주"],
+   행동경향:["혼자 산책","배달 주문","음악·잡지 검색","축제 구경","어르신 세심하게 응대"]}},
+{star:true,name:"인상훈",meta:"24세 · 남 · 수원 권선구 · 육군 병사 (공학 전공)",
+ skin:"#f2d2b3",hairColor:"#241d18",hair:"quiff",cap:null,
+ top:"#7fa8d0",collar:true,bottom:"#3d4550",shoe:"#2f3540",brow:"#221a14",age:24,
+ persona:{성격:"꼼꼼·성실·예의바름. 자기관리 철저, 정적인 휴식 선호. 설계 전문가라는 야심.",
+   말투:"단정하고 예의 바른 요즘 청년 말투. 논리적으로 정리해 말함.",말버릇:["아 그거는요","효율적으로","정리하자면"],
+   관심사:["오토캐드·설계","테크 유튜브 리뷰","행궁동 카페·소품샵","셀프 헤어","BBQ 황금올리브","수원갈비","IT 커뮤니티"],
+   행동경향:["유튜브·IT커뮤니티 검색","테크기기 리서치·구매","감성 카페 방문","배달 주문","루틴 운동"]}}
+];
+
+const wrap=document.getElementById("wrap");
+villagers.forEach(v=>{
+  const card=document.createElement("div");
+  card.className="card"+(v.star?" star":"");
+  const views=DIRS.map(d=>`<div class="view">${render(v,d)}<span>${DIR_KO[d]}</span></div>`).join("");
+  const p=v.persona,chips=a=>a.map(x=>`<span class="chip">${x}</span>`).join("");
+  card.innerHTML=`<div class="top"><span class="name">${v.name}</span>
+      ${v.star?'<span class="star-tag">★ 최애주민(주인공)</span>':''}<span class="meta">${v.meta}</span></div>
+    <div class="views">${views}</div>
+    <div class="persona">
+      <div><h4>성격</h4><p>${p.성격}</p></div>
+      <div><h4>말투</h4><p>${p.말투}</p></div>
+      <div><h4>말버릇</h4><div class="chips">${chips(p.말버릇)}</div></div>
+      <div><h4>관심사</h4><div class="chips">${chips(p.관심사)}</div></div>
+      <div style="grid-column:1/-1"><h4>행동 경향 (액션)</h4><div class="chips">${chips(p.행동경향)}</div></div>
+    </div>`;
+  wrap.appendChild(card);
+});
+</script>
+</body>
+</html>
