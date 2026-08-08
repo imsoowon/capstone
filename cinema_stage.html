@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>최애주민 × 롯데시네마 — 라이브 무대</title>
+<style>
+  :root{--gold:#e8b24b;--red:#d0323c;--ink:#241b2e;--sub:#9b8fb0;--card:#fffdf8;--line:#ece4d6;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#efe7dd;color:#2c2333;
+    font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;}
+  /* ---- header ---- */
+  .bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:12px 18px;
+    background:linear-gradient(120deg,#1c1430,#2a1d3d);color:#fff;}
+  .bar h1{margin:0;font-size:19px;letter-spacing:.3px;}
+  .bar h1 b{color:var(--gold);}
+  .bar .tag{font-size:11px;color:#c9bce0;border:1px solid #4a3a63;border-radius:20px;padding:2px 8px;}
+  .grow{flex:1;min-width:80px;}
+  select,input,button{font:inherit;padding:7px 11px;border-radius:10px;border:1px solid #4a3a63;
+    background:#2c2140;color:#fff;}
+  select option{color:#000;}
+  input::placeholder{color:#9b8fb0;}
+  button{cursor:pointer;border:none;font-weight:800;}
+  #demoBtn{background:var(--gold);color:#3a2a00;}
+  #runBtn{background:var(--red);color:#fff;}
+  button.ghost{background:#2c2140;color:#fff;border:1px solid #4a3a63;}
+  button:disabled{opacity:.5;cursor:default;}
+  .hint{font-size:11.5px;color:#c3b6dd;width:100%;margin-top:2px;}
+  .wrap{max-width:1060px;margin:0 auto;padding:16px 16px 64px;}
+  /* ---- stage ---- */
+  .stage{position:relative;height:420px;border-radius:20px;overflow:hidden;
+    box-shadow:0 14px 40px rgba(40,20,50,.28);}
+  .backdrop{position:absolute;inset:0;width:100%;height:100%;}
+  .marquee{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:3;
+    background:#160f22;border:2px solid var(--gold);color:var(--gold);
+    padding:6px 20px;border-radius:10px;font-weight:900;letter-spacing:2px;font-size:14px;
+    box-shadow:0 0 26px rgba(232,178,75,.55),inset 0 0 12px rgba(232,178,75,.25);}
+  .cast{position:absolute;left:0;right:0;bottom:26px;display:flex;justify-content:center;
+    gap:min(7vw,60px);align-items:flex-end;z-index:2;}
+  .char{position:relative;width:150px;text-align:center;
+    transition:transform 1.2s cubic-bezier(.22,.61,.36,1),filter .3s;filter:grayscale(.1) brightness(.9);}
+  .char.active{filter:none;z-index:4;}
+  .char svg{width:128px;height:auto;transform-origin:center bottom;animation:breathe 2.8s ease-in-out infinite;}
+  .char:nth-child(2) svg{animation-delay:.6s;}
+  .char:nth-child(3) svg{animation-delay:1.1s;}
+  .char.active svg{animation:hop .6s ease-in-out infinite;}
+  .char.react svg{animation:shake .38s ease-in-out 2;}
+  .char.walking svg{animation:walkbob .26s linear infinite;}
+  .char .nm{position:relative;z-index:2;color:#fff;font-size:12px;font-weight:800;margin-top:-6px;
+    background:rgba(20,10,30,.55);border-radius:20px;padding:2px 12px;display:inline-block;
+    backdrop-filter:blur(2px);}
+  .legL,.legR,.armL,.armR{transform-box:fill-box;transform-origin:50% 4%;}
+  .char.walking .legL{animation:swingA .5s linear infinite;}
+  .char.walking .legR{animation:swingB .5s linear infinite;}
+  .char.walking .armL{animation:swingB .5s linear infinite;}
+  .char.walking .armR{animation:swingA .5s linear infinite;}
+  .char .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.8s infinite;}
+  @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes walkbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes hop{0%,100%{transform:translateY(0)}28%{transform:translateY(-16px)}55%{transform:translateY(0)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+  @keyframes swingA{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-15deg)}}
+  @keyframes swingB{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
+  /* ---- speech / emotes ---- */
+  .bubble{position:absolute;bottom:172px;left:50%;transform:translateX(-50%) scale(.5);opacity:0;
+    transition:.3s cubic-bezier(.34,1.56,.64,1);min-width:130px;max-width:236px;background:#fff;
+    border-radius:16px;padding:9px 13px;font-size:13.5px;line-height:1.45;color:#2c2333;
+    box-shadow:0 10px 24px rgba(0,0,0,.35);pointer-events:none;z-index:6;}
+  .bubble.show{opacity:1;transform:translateX(-50%) scale(1);}
+  .bubble:after{content:"";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+    border:9px solid transparent;border-top-color:#fff;}
+  .bubble .think{color:#b0a0c0;font-size:11px;font-style:italic;margin-bottom:3px;}
+  .badge{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);opacity:0;transition:.2s;
+    background:var(--gold);color:#4a3410;font-size:11px;font-weight:800;padding:3px 10px;
+    border-radius:20px;white-space:nowrap;z-index:5;}
+  .badge.show{opacity:1;bottom:150px;}
+  .emote{position:absolute;bottom:184px;left:50%;width:44px;height:44px;line-height:44px;text-align:center;
+    font-size:25px;background:#fff;border-radius:50%;box-shadow:0 6px 16px rgba(0,0,0,.32);z-index:7;
+    pointer-events:none;animation:emotePop 1.5s ease forwards;}
+  @keyframes emotePop{0%{transform:translateX(-50%) scale(0)}18%{transform:translateX(-50%) translateY(-6px) scale(1.25)}
+    34%{transform:translateX(-50%) translateY(-10px) scale(1)}78%{transform:translateX(-50%) translateY(-14px) scale(1);opacity:1}
+    100%{transform:translateX(-50%) translateY(-34px) scale(.9);opacity:0}}
+  .pfx{position:absolute;bottom:176px;font-size:20px;z-index:7;pointer-events:none;animation:floatUp 1.5s ease-out forwards;}
+  @keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.6)}22%{opacity:1;transform:translateY(-14px) scale(1)}
+    100%{opacity:0;transform:translateY(-66px) scale(1)}}
+  /* ---- panels ---- */
+  .panel{margin-top:16px;}
+  .status{font-size:12.5px;color:#6a5c7a;margin-bottom:8px;display:inline-block;}
+  .log{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 0;
+    max-height:280px;overflow:auto;box-shadow:0 6px 18px rgba(60,40,70,.06);}
+  .log h4{margin:0;padding:11px 16px 8px;font-size:12px;color:var(--sub);
+    text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--line);}
+  .log .row{padding:8px 16px;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .log .row:last-child{border:none;}
+  .log .who{font-weight:800;}
+  .log .obs{color:#8a7f96;font-size:12px;margin-top:2px;white-space:pre-line;}
+  .log .act{display:inline-block;background:#f2ead9;color:#7a5a10;border-radius:6px;
+    padding:1px 7px;font-size:11.5px;margin-left:5px;}
+  .result{margin-top:14px;padding:18px;border-radius:16px;display:none;
+    background:linear-gradient(120deg,#fff5df,#ffe9c2);border:1px solid var(--gold);
+    box-shadow:0 8px 22px rgba(200,150,40,.18);}
+  .result.show{display:block;}
+  .result h3{margin:0 0 10px;font-size:18px;}
+  .vote{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;}
+  .c-in{color:#2b6cb0;} .c-jn{color:#b7791f;} .c-dy{color:#2f855a;}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>🎬 최애주민 × <b>롯데시네마</b> <span class="tag">LIVE 무대</span></h1>
+  <span class="grow"></span>
+  <button id="demoBtn" class="ghost">▶ 데모 재생</button>
+  <select id="provider" title="LLM 제공자">
+    <option value="gemini">Gemini</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option>
+  </select>
+  <input id="model" size="15" value="gemini-2.0-flash" title="모델명">
+  <input id="key" type="password" size="14" placeholder="API 키">
+  <input id="rounds" type="number" min="1" max="5" value="3" style="width:52px" title="라운드">
+  <button id="runBtn">⚡ 실시간 실행</button>
+  <div class="hint">⚠️ 브라우저 직접 호출이라 키가 노출돼요 — 실행할 때만 입력하고 코드/깃허브엔 넣지 마세요. 키 없이 보려면 <b>데모 재생</b>.</div>
+</div>
+
+<div class="wrap">
+  <div class="stage">
+    <svg class="backdrop" viewBox="0 0 1000 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241832"/><stop offset="1" stop-color="#3a2540"/></linearGradient>
+        <linearGradient id="carpet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a2233"/><stop offset="1" stop-color="#5c1523"/></linearGradient>
+        <radialGradient id="glow" cx="0.5" cy="0" r="0.9"><stop offset="0" stop-color="#ffe6a8" stop-opacity=".45"/><stop offset="1" stop-color="#ffe6a8" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1000" height="420" fill="url(#wall)"/>
+      <polygon points="220,0 150,330 290,330" fill="url(#glow)"/>
+      <polygon points="500,0 430,330 570,330" fill="url(#glow)"/>
+      <polygon points="780,0 710,330 850,330" fill="url(#glow)"/>
+      <rect x="0" y="0" width="1000" height="14" fill="#160e22"/>
+      <circle cx="150" cy="26" r="4" fill="#e8b24b"/><circle cx="290" cy="26" r="4" fill="#e8b24b"/>
+      <circle cx="430" cy="26" r="4" fill="#e8b24b"/><circle cx="570" cy="26" r="4" fill="#e8b24b"/>
+      <circle cx="710" cy="26" r="4" fill="#e8b24b"/><circle cx="850" cy="26" r="4" fill="#e8b24b"/>
+      <g>
+        <rect x="96" y="120" width="118" height="168" rx="8" fill="#120b1c"/>
+        <rect x="104" y="128" width="102" height="140" rx="4" fill="#7b1f2b"/>
+        <polygon points="104,268 206,268 206,210 155,180 104,210" fill="#e8b24b" opacity=".85"/>
+        <text x="155" y="286" text-anchor="middle" fill="#f4e3c0" font-size="15" font-weight="700">장군의 검</text>
+      </g>
+      <g>
+        <rect x="440" y="104" width="120" height="176" rx="8" fill="#120b1c"/>
+        <rect x="448" y="112" width="104" height="148" rx="4" fill="#132a4a"/>
+        <circle cx="500" cy="176" r="34" fill="#31c7d8" opacity=".8"/>
+        <rect x="470" y="150" width="60" height="10" rx="5" fill="#e64bd0" opacity=".9"/>
+        <text x="500" y="276" text-anchor="middle" fill="#cfe8ff" font-size="15" font-weight="700">네온 크래시</text>
+      </g>
+      <g>
+        <rect x="786" y="120" width="118" height="168" rx="8" fill="#120b1c"/>
+        <rect x="794" y="128" width="102" height="140" rx="4" fill="#12403f"/>
+        <path d="M794,236 Q825,214 845,236 T896,236 L896,268 L794,268 Z" fill="#5fd0c0" opacity=".8"/>
+        <text x="845" y="286" text-anchor="middle" fill="#dff5ef" font-size="15" font-weight="700">고요한 파도</text>
+      </g>
+      <rect x="0" y="330" width="1000" height="90" fill="url(#carpet)"/>
+      <g stroke="#a03040" stroke-width="2" opacity=".5">
+        <path d="M0,352 L1000,352" fill="none"/><path d="M0,384 L1000,384" fill="none"/>
+      </g>
+      <g fill="#3a1220" opacity=".55">
+        <rect x="70" y="300" width="180" height="34" rx="8"/><rect x="410" y="298" width="200" height="36" rx="8"/>
+        <rect x="770" y="300" width="180" height="34" rx="8"/>
+      </g>
+    </svg>
+    <div class="marquee">LOTTE CINEMA · 한들마을</div>
+    <div class="cast" id="cast"></div>
+  </div>
+
+  <div class="panel">
+    <span class="status" id="status">막이 오릅니다 — 데모를 재생하거나, 키를 넣고 실시간 실행하세요.</span>
+    <div class="log" id="log"><h4>실시간 로그</h4></div>
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<script>
+/* ================= 캐릭터 SVG (디테일 + 팔다리 그룹) ================= */
+const OL='stroke="#3a2f3a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"';
+const OLt='stroke="#3a2f3a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
+const OLn='stroke="#3a2f3a" stroke-linejoin="round" stroke-linecap="round" fill="none"';
+function eyeF(x,lash){return `<g class="eye"><ellipse cx="${x}" cy="94" rx="5.2" ry="6.6" fill="#fff" ${OLt}/>
+  <circle cx="${x}" cy="95" r="3.7" fill="#2a2018"/><circle cx="${x-1.6}" cy="91.8" r="1.6" fill="#fff"/>
+  ${lash?`<path d="M${x-6},89 Q${x-8},86 ${x-9},87 M${x+6},89 Q${x+8},86 ${x+9},87" ${OLt}/>`:""}</g>`;}
+function hairF(c){
+  const crown=`M50,92 A50,50 0 0 1 150,92 L150,80 Q150,62 122,60 Q100,56 78,60 Q50,62 50,80 Z`;
+  if(c.hair==="cap")return `<path d="${crown}" fill="${c.hairColor}" ${OLt}/>
+    <path d="M45,84 Q100,40 155,84 L155,73 Q150,50 100,48 Q50,50 45,73 Z" fill="${c.cap}" ${OL}/>
+    <path d="M43,84 Q68,77 92,81 L90,90 Q66,86 47,90 Z" fill="${c.cap}" ${OLt}/>
+    <circle cx="100" cy="60" r="6" fill="${c.gold||'#e8b24b'}" ${OLt}/><path d="M100,56 l1.6,3.2 3.4,.3 -2.6,2.2 .9,3.3 -3.3,-1.8 -3.3,1.8 .9,-3.3 -2.6,-2.2 3.4,-.3 z" fill="#fff"/>`;
+  if(c.hair==="quiff")return `<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+    <path d="M70,62 Q80,36 108,50 Q95,44 84,50 Q75,54 70,64 Z" fill="${c.hairColor}" ${OLt}/>
+    <path d="M106,50 Q132,44 142,68 Q131,56 114,56 Q104,52 106,60 Z" fill="${c.hairColor}" ${OLt}/>
+    <path d="M78,54 Q90,50 100,54" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" opacity=".25"/>`;
+  return `<path d="${crown}" fill="${c.hairColor}" ${OL}/>
+    <path d="M50,80 Q47,124 55,158 Q64,124 60,86 Z" fill="${c.hairColor}" ${OL}/>
+    <path d="M150,80 Q153,124 145,158 Q136,124 140,86 Z" fill="${c.hairColor}" ${OL}/>
+    <path d="M100,58 Q88,64 78,62 Q90,52 100,54 Q110,52 122,62 Q112,64 100,58 Z" fill="${c.hairColor}" ${OLt}/>
+    <path d="M72,66 Q82,60 96,62" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" opacity=".2"/>`;
+}
+function faceF(c){const old=c.age>65;let s=eyeF(83,c.lash)+eyeF(117,c.lash);
+  s+=`<path d="M74,82 Q83,77 91,82" ${OLn} stroke-width="2.5"/><path d="M109,82 Q117,77 126,82" ${OLn} stroke-width="2.5"/>
+      <path d="M98,95 Q100,101 105,100" ${OLn} stroke-width="1.7"/>`;
+  if(old)s+=`<path d="M84,106 Q100,112 116,106 Q100,117 84,106 Z" fill="${c.hairColor}" ${OLt}/>
+      <path d="M89,121 Q100,126 111,121" ${OLn} stroke-width="2.1"/>
+      <path d="M62,88 Q66,90 68,88 M132,88 Q136,90 138,88" ${OLn} stroke-width="1.2" opacity=".5"/>`;
+  else s+=`<path d="M90,111 Q100,119 110,111" ${OLn} stroke-width="2.3"/>`;
+  s+=`<ellipse cx="70" cy="105" rx="7" ry="4.4" fill="#f6947e" opacity=".55"/><ellipse cx="130" cy="105" rx="7" ry="4.4" fill="#f6947e" opacity=".55"/>`;
+  return s;}
+function charSVG(c){const bs=c.bottomShade||c.bottom;return `<svg viewBox="0 0 200 322" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="100" cy="304" rx="50" ry="9" fill="rgba(0,0,0,.22)"/>
+  <g class="legR"><rect x="103" y="230" width="15" height="56" rx="7" fill="${bs}" ${OL}/><ellipse cx="110" cy="288" rx="13" ry="7" fill="${c.shoe}" ${OL}/></g>
+  <g class="legL"><rect x="82" y="230" width="15" height="56" rx="7" fill="${c.bottom}" ${OL}/><ellipse cx="89" cy="288" rx="13" ry="7" fill="${c.shoe}" ${OL}/></g>
+  <path d="M60,170 Q60,150 84,146 L116,146 Q140,150 140,170 L138,246 Q100,255 62,246 Z" fill="${c.top}" ${OL}/>
+  ${c.vest?`<path d="M60,170 Q60,150 82,146 L82,250 Q70,249 62,246 Z" fill="${c.vest}" ${OLt}/><path d="M140,170 Q140,150 118,146 L118,250 Q130,249 138,246 Z" fill="${c.vest}" ${OLt}/>`:""}
+  ${c.apron?`<path d="M78,150 Q100,144 122,150 L127,248 Q100,255 73,248 Z" fill="${c.apron}" ${OLt}/><rect x="90" y="196" width="20" height="18" rx="3" fill="none" ${OLt} stroke-opacity=".5"/><path d="M82,150 L72,138 M118,150 L128,138" ${OLt}/>`:""}
+  ${c.towel?`<path d="M82,148 Q100,164 118,148 L124,170 Q100,182 76,170 Z" fill="${c.towel}" ${OLt}/>`:""}
+  ${c.collar?`<path d="M90,147 L100,164 L110,147" fill="#fff" ${OLt}/><circle cx="100" cy="182" r="2.4" fill="#3a2f3a"/><circle cx="100" cy="206" r="2.4" fill="#3a2f3a"/>`:""}
+  <g class="armR"><rect x="132" y="158" width="16" height="54" rx="8" fill="${c.top}" ${OL}/><circle cx="140" cy="214" r="9" fill="${c.skin}" ${OL}/></g>
+  <g class="armL"><rect x="52" y="158" width="16" height="54" rx="8" fill="${c.top}" ${OL}/><circle cx="60" cy="214" r="9" fill="${c.skin}" ${OL}/></g>
+  <rect x="89" y="124" width="22" height="26" rx="4" fill="${c.skin}" ${OL}/>
+  <ellipse cx="50" cy="94" rx="8" ry="11" fill="${c.skin}" ${OL}/><ellipse cx="150" cy="94" rx="8" ry="11" fill="${c.skin}" ${OL}/>
+  <circle cx="100" cy="92" r="50" fill="${c.skin}" ${OL}/>${hairF(c)}${faceF(c)}</svg>`;}
+
+/* ================= 페르소나 / 무대 데이터 ================= */
+const PERSONAS={
+ "인상훈":{cls:"c-in",skin:"#f4d5b6",hairColor:"#241d18",hair:"quiff",top:"#6f9fd0",collar:true,bottom:"#3d4550",bottomShade:"#333b46",shoe:"#2f3540",age:24,
+   info:"24세 남성, 수원, 육군 병사(공학). 미혼, 부모와 거주.",성격:"꼼꼼·성실·예의 바름. 자기관리 철저, 설계 전문가 야심.",말투:"단정하고 예의 바른 요즘 청년 말투.",시네마:"앱으로 미리 예매, 평점·리뷰 검색, 수퍼플렉스/4DX 선호, SF·액션."},
+ "전기태":{cls:"c-jn",skin:"#dcab7c",hairColor:"#d6d1c6",hair:"cap",cap:"#2f4d6b",gold:"#e8b24b",top:"#93997f",vest:"#c67d2a",bottom:"#46464e",bottomShade:"#3b3b42",shoe:"#5b4632",towel:"#f2ede1",age:74,
+   info:"74세 남성, 광주, 하역 베테랑. 배우자와 거주, 초졸.",성격:"투박·고집·정 많고 사교적. 의리 중시.",말투:"진한 전라도 사투리(~잉, 거시기), 목소리 큼.",시네마:"앱·키오스크 어려워 현장 매표소, 사극·한국 액션, 가격 민감."},
+ "이다연":{cls:"c-dy",skin:"#f3d0af",hairColor:"#3b2c24",hair:"long",lash:true,top:"#e3ddcf",apron:"#7c8c6a",bottom:"#6d7385",bottomShade:"#5d6373",shoe:"#cfc8ba",age:33,
+   info:"33세 여성, 제주, 식당 서빙(보건복지). 미혼, 부모와 거주.",성격:"조용·내향·세심. 갈등 회피, 혼자 충전.",말투:"차분하고 나긋(음…, 괜찮아요). 말수 적음.",시네마:"조용한 조조·심야, 잔잔한 인디·드라마, 독립적."}};
+const ORDER=["인상훈","전기태","이다연"];
+const SCENE={영화:{"네온 크래시":{장르:"SF 액션",평점:8.5},"장군의 검":{장르:"사극 액션",평점:8.2},"고요한 파도":{장르:"잔잔한 인디",평점:8.9}}};
+const TITLES=Object.keys(SCENE.영화);
+function sceneBrief(){const m=TITLES.map(t=>`${t}(${SCENE.영화[t].장르}, 평점 ${SCENE.영화[t].평점})`).join(" / ");
+  return `[장소] 한들마을 롯데시네마  [때] 토요일 오후\n[공동 목표] 셋이 '같은 영화 한 편'을 함께 보기로 했다. 대화로 설득해 하나로 합의해야 한다.\n[상영작] ${m}\n[상영관] 일반 14,000 · 수퍼플렉스 22,000 · 4DX 18,000 / 예매: 앱·키오스크·현장 매표소`;}
+function personaSystem(n){const p=PERSONAS[n];
+  return [`당신은 가상의 마을 '한들마을' 주민 '${n}'입니다. 아래 설정에 100% 몰입해 1인칭으로 행동하세요.`,
+   `[기본] ${p.info}`,`[성격] ${p.성격}`,`[말투] ${p.말투} 이 말투를 대사에 살리세요.`,`[영화관 성향] ${p.시네마}`,
+   "규칙: 설정을 벗어나지 말 것. 반드시 한국어로만(한자·외국어 금지). 다른 주민 말에 직접 반응할 것. 욕설 금지.",
+   "매 턴 JSON 하나만 출력: {\"속마음\":\"..\",\"대사\":\"..\",\"행동\":{\"종류\":\"검색|방문|구매|대화|없음\",\"대상\":\"..\"}}"].join("\n");}
+const ACTION_GUIDE=[
+ "오늘 목표는 셋이 '같은 영화 하나'를 정하는 것. 당신 취향을 대사로 설득하되 남 말도 듣고 합의점을 찾으세요.",
+ "합의 전엔 혼자 구매 말고 '대화'로 의견을 주고받으세요. 대사는 당신 말투로 새로(예시 베끼기 금지).",
+ "행동.종류: 검색(대상=검색어)/방문(대상=앱·키오스크·현장 매표소·매점)/구매(대상=품목)/대화(대상=상대 이름)/없음",
+ "JSON 하나만: {\"속마음\":\"..\",\"대사\":\"..\",\"행동\":{\"종류\":\"..\",\"대상\":\"..\"}}"].join("\n");
+
+/* ================= 파서 / 후처리 ================= */
+function koOnly(s){if(typeof s!=="string")return s;return s.replace(/[㐀-䶿一-鿿豈-﫿]/g,"").replace(/\s{2,}/g," ").trim();}
+function extractJSON(t){t=t.replace(/```(json)?/g,"");const st=t.indexOf("{");if(st<0)return null;
+  let d=0,ins=false,esc=false;for(let i=st;i<t.length;i++){const ch=t[i];
+    if(esc){esc=false;continue;}if(ch==="\\"){esc=true;continue;}if(ch==='"'){ins=!ins;continue;}
+    if(!ins){if(ch==="{")d++;else if(ch==="}"){d--;if(d===0)return t.slice(st,i+1);}}}return null;}
+function cleanVal(v){return typeof v==="string"?v.replace(/^(대상|종류|상세)\s*=\s*/,"").replace(/^['"]|['"]$/g,"").trim():v;}
+function parseTurn(text){let blob=extractJSON(text)||text,o=null;try{o=JSON.parse(blob);}catch(e){}
+  if(o&&typeof o==="object"){const a=o["행동"]||{};if(a&&typeof a==="object")a["대상"]=cleanVal(a["대상"]||"");
+    return {속마음:koOnly(o["속마음"]||""),대사:koOnly(o["대사"]||""),행동:{종류:(a["종류"]||"없음"),대상:cleanVal(a["대상"]||"")},최종선택:o["최종선택"]||""};}
+  let sp="";const m=text.match(/"대사"\s*:\s*"((?:[^"\\]|\\.)*)"/);sp=m?m[1]:koOnly(text).slice(0,120);
+  let k="없음";const mk=text.match(/"종류"\s*:\s*"(검색|방문|구매|대화|없음)"/);if(mk)k=mk[1];
+  return {속마음:"",대사:koOnly(sp),행동:{종류:k,대상:""},최종선택:""};}
+
+/* ================= 환경 ================= */
+function searchDb(q){q=""+q;let h=[];for(const t of TITLES){if(q.includes(t)||/평점|추천|영화|리뷰|뭐/.test(q))h.push(`${t}: ${SCENE.영화[t].장르}, 평점 ${SCENE.영화[t].평점}`);}
+  if(/할인|가격|경로|컬처/.test(q))h.push("할인: 컬처데이 7,000 · 경로우대 8,000 · 앱 5% 적립");
+  return h.length?"🔎 "+h.join(" / "):"🔎 검색 결과가 마땅치 않습니다.";}
+function placeObs(p){const t={"롯데시네마 앱":"앱 예매 화면. 좌석·시간이 한눈에, 5% 적립.","앱":"앱 예매 화면. 좌석·시간이 한눈에, 5% 적립.",
+  "무인 키오스크":"터치 키오스크. 단계 많고 글씨 작음.","키오스크":"터치 키오스크. 단계 많고 글씨 작음.",
+  "현장 매표소":"직원이 웃으며 응대. 할인·시간 말로 문의 가능.","매점":"팝콘 냄새. L콤보 11,000.","상영관":"계단식 좌석 입구."};
+  return "📍 "+(t[p]||`'${p}'에 도착했다.`);}
+function envStep(a){const k=a.종류,tg=a.대상||"";if(k==="검색")return searchDb(tg);if(k==="방문")return placeObs(tg);if(k==="구매")return "🧾 구매완료: "+tg;return "";}
+
+/* ================= LLM (브라우저 직접 호출) ================= */
+const state={provider:"gemini",model:"gemini-2.0-flash",apiKey:"",busy:false};
+async function callLLM(system,user){const p=state.provider,key=state.apiKey.trim(),model=state.model.trim();
+  if(!key)throw new Error("API 키를 입력하세요");
+  if(p==="gemini"){const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{temperature:0.8,responseMimeType:"application/json"}})});
+    if(!r.ok)throw new Error("Gemini "+r.status+": "+(await r.text()).slice(0,160));const d=await r.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||"";}
+  if(p==="openai"){const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify({model,temperature:0.8,response_format:{type:"json_object"},messages:[{role:"system",content:system},{role:"user",content:user}]})});
+    if(!r.ok)throw new Error("OpenAI "+r.status+": "+(await r.text()).slice(0,160));const d=await r.json();return d.choices?.[0]?.message?.content||"";}
+  if(p==="anthropic"){const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model,max_tokens:1024,temperature:0.8,system,messages:[{role:"user",content:user}]})});
+    if(!r.ok)throw new Error("Anthropic "+r.status+": "+(await r.text()).slice(0,160));const d=await r.json();return d.content?.[0]?.text||"";}}
+
+/* ================= 무대 렌더 / 애니메이션 ================= */
+const cast=document.getElementById("cast"),logEl=document.getElementById("log"),statusEl=document.getElementById("status"),resultEl=document.getElementById("result");
+const nodes={};
+function buildStage(){cast.innerHTML="";ORDER.forEach(n=>{const p=PERSONAS[n];const d=document.createElement("div");d.className="char";
+  d.innerHTML=`<div class="bubble" id="b_${n}"></div><div class="badge" id="g_${n}"></div>${charSVG(p)}<div class="nm">${n}</div>`;
+  cast.appendChild(d);nodes[n]={el:d,bubble:d.querySelector(".bubble"),badge:d.querySelector(".badge")};});}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const ACT_ICON={검색:"🔎 검색",방문:"📍 방문",구매:"🛒 구매",대화:"💬 대화"};
+const ACT_FX={검색:{emote:"🔍",float:["❔","💡"]},방문:{emote:"🚪",float:["💨","👟"]},구매:{emote:"🎟️",float:["💰","✨"]},대화:{emote:"💬",float:["💗"]},없음:{emote:"💭",float:[]}};
+function setActive(n){for(const k in nodes)nodes[k].el.classList.toggle("active",k===n);}
+function spawnEmote(name,emoji){const nd=nodes[name];if(!nd||!emoji)return;const e=document.createElement("div");e.className="emote";e.textContent=emoji;nd.el.appendChild(e);e.addEventListener("animationend",()=>e.remove());}
+function spawnFloat(name,arr){const nd=nodes[name];if(!nd||!arr)return;arr.forEach((emo,i)=>setTimeout(()=>{const e=document.createElement("div");e.className="pfx";e.textContent=emo;e.style.left=(36+Math.random()*46)+"%";nd.el.appendChild(e);e.addEventListener("animationend",()=>e.remove());},i*170));}
+function noticeReact(name){const nd=nodes[name];if(!nd)return;spawnEmote(name,"❗");nd.el.classList.add("react");setTimeout(()=>nd.el.classList.remove("react"),800);}
+async function entrance(){
+  ORDER.forEach((n,i)=>{const nd=nodes[n];nd.el.style.transition="none";nd.el.style.transform=`translateX(${(i===2?1:-1)*620}px)`;nd.el.classList.add("walking");});
+  await delay(60);
+  ORDER.forEach((n,i)=>{const nd=nodes[n];setTimeout(()=>{nd.el.style.transition="transform 1.2s cubic-bezier(.22,.61,.36,1)";nd.el.style.transform="translateX(0)";},i*240);});
+  await delay(1200+2*240+200);
+  ORDER.forEach(n=>nodes[n].el.classList.remove("walking"));
+}
+async function showTurn(t){setActive(t.name);const nd=nodes[t.name];
+  nd.bubble.innerHTML=(t.속마음?`<div class="think">💭 ${t.속마음}</div>`:"")+(t.대사?`🗣️ ${t.대사}`:"…");nd.bubble.classList.add("show");
+  const k=t.행동?.종류;
+  if(k&&ACT_ICON[k]){nd.badge.textContent=ACT_ICON[k]+(t.행동.대상?" · "+t.행동.대상:"");nd.badge.classList.add("show");}else nd.badge.classList.remove("show");
+  const fx=ACT_FX[k]||ACT_FX["없음"];spawnEmote(t.name,(k&&k!=="없음")?fx.emote:(t.대사?"💬":"💭"));spawnFloat(t.name,fx.float);
+  if(k==="대화"&&PERSONAS[t.행동.대상]&&t.행동.대상!==t.name)setTimeout(()=>noticeReact(t.행동.대상),450);
+  addLog(t);await delay(t.대사?2300:1400);nd.bubble.classList.remove("show");nd.badge.classList.remove("show");await delay(240);}
+function addLog(t){const p=PERSONAS[t.name];const row=document.createElement("div");row.className="row";
+  let h=`<span class="who ${p.cls}">${t.name}</span> `;if(t.대사)h+=t.대사;
+  if(t.행동&&ACT_ICON[t.행동.종류])h+=`<span class="act">${ACT_ICON[t.행동.종류]}${t.행동.대상?" "+t.행동.대상:""}</span>`;
+  if(t.관찰)h+=`<div class="obs">${t.관찰}</div>`;row.innerHTML=h;logEl.appendChild(row);logEl.scrollTop=logEl.scrollHeight;}
+function showResult(votes){const tally={};Object.values(votes).forEach(v=>{if(v&&v!=="미정")tally[v]=(tally[v]||0)+1;});
+  let top="",n=0;for(const k in tally)if(tally[k]>n){top=k;n=tally[k];}
+  const msg=top?(n===ORDER.length?`🎯 만장일치 합의 → <b>${top}</b>`:`🎯 다수결 합의 → <b>${top}</b> (${n}/${ORDER.length}표)`):"🎯 합의 실패";
+  resultEl.innerHTML=`<h3>${msg}</h3><div class="vote">`+ORDER.map(nm=>`<span><b class="${PERSONAS[nm].cls}">${nm}</b>: ${votes[nm]||"미정"}</span>`).join("")+`</div>`;
+  resultEl.classList.add("show");resultEl.scrollIntoView({behavior:"smooth",block:"nearest"});}
+function reset(){[...logEl.querySelectorAll(".row")].forEach(r=>r.remove());resultEl.classList.remove("show");for(const k in nodes){nodes[k].bubble.classList.remove("show");nodes[k].badge.classList.remove("show");}}
+
+/* ================= 시뮬 루프 ================= */
+function buildUser(name,pubLog,lastObs,hist,r,total){let parts=["=== 무대 ===",sceneBrief(),"","=== 지금까지 오간 말/행동 ===",pubLog.length?pubLog.join("\n"):"(아직 없음)",""];
+  const recent=[...pubLog].reverse().find(e=>!e.startsWith(name+":")&&e.includes('"'));
+  if(recent)parts.push("=== 방금 다른 주민의 말 → 여기에 대사로 직접 반응 ===",recent,"");
+  if(hist.length)parts.push("=== 당신이 이미 한 행동(반복 금지, 다음 단계로) ===",hist.join(" / "),"");
+  if(lastObs)parts.push("=== 방금 당신 행동의 결과 ===",lastObs,"");
+  parts.push("=== 지시 ===",`당신은 '${name}'. 당신답게 한 턴을 진행하세요.`);
+  if(r>=total)parts.push("※ 마지막 라운드입니다. 고집을 조금 접고 '한 영화'로 합의를 지어주세요.");
+  parts.push(ACTION_GUIDE);return parts.join("\n");}
+async function runLive(){if(state.busy)return;state.apiKey=document.getElementById("key").value;state.provider=document.getElementById("provider").value;state.model=document.getElementById("model").value;
+  if(!state.apiKey.trim()){alert("API 키를 입력하거나 '데모 재생'을 누르세요.");return;}
+  const rounds=Math.max(1,Math.min(5,+document.getElementById("rounds").value||3));
+  state.busy=true;setButtons(false);reset();statusEl.textContent="주민들이 입장합니다…";await entrance();
+  const pubLog=[],lastObs={},hist={};ORDER.forEach(n=>hist[n]=[]);
+  try{for(let r=1;r<=rounds;r++){for(const name of ORDER){statusEl.textContent=`R${r} · ${name} 생각 중…`;
+    const raw=await callLLM(personaSystem(name),buildUser(name,pubLog,lastObs[name],hist[name],r,rounds));const t=parseTurn(raw);t.name=name;t.round=r;
+    const obs=envStep(t.행동);if(obs){lastObs[name]=obs;t.관찰=obs;}
+    if(t.행동.종류&&t.행동.종류!=="없음")hist[name].push(`${t.행동.종류} ${t.행동.대상||""}`.trim());
+    if(t.대사)pubLog.push(`${name}: "${t.대사}"`);
+    if(t.행동.종류&&!["없음","대화"].includes(t.행동.종류))pubLog.push(`${name} → [${t.행동.종류}] ${t.행동.대상||""}`);
+    await showTurn(t);}}
+    statusEl.textContent="최종 투표 중…";const votes=await finalVote(pubLog);setActive(null);showResult(votes);statusEl.textContent="완료 ✓";
+  }catch(e){statusEl.textContent="⚠️ "+e.message;alert("실행 오류: "+e.message);}
+  state.busy=false;setButtons(true);}
+async function finalVote(pubLog){const votes={};for(const name of ORDER){
+    const user=[sceneBrief(),"","=== 지금까지 대화 ===",pubLog.join("\n"),"","이제 최종 결정입니다. 셋이 '함께 볼 영화 하나'를 고르세요.",`후보: ${TITLES.join(" / ")}`,'한국어로만. JSON 하나만: {"대사":"한마디","최종선택":"후보 중 하나"}'].join("\n");
+    const t=parseTurn(await callLLM(personaSystem(name),user));const pick=(""+(t.최종선택||""))+" "+(t.대사||"");
+    let chosen="미정";for(const tt of TITLES)if(pick.includes(tt)){chosen=tt;break;}votes[name]=chosen;}return votes;}
+
+/* ================= 데모(녹화본) ================= */
+const DEMO=[
+ {name:"인상훈",속마음:"이 세 편 다 좋아 고민되네",대사:"저는 네온 크래시 추천해요, 극장 사운드가 제일 좋다고 하더라고요.",행동:{종류:"검색",대상:"네온 크래시 평점"}},
+ {name:"전기태",속마음:"난 사극이 좋제",대사:"거시기, 나는 장군의 검이 더 낫겄어. 사극이 최고제 잉.",행동:{종류:"방문",대상:"현장 매표소"}},
+ {name:"이다연",속마음:"조용한 게 좋은데",대사:"음… 저는 고요한 파도가 좋을 것 같아요, 한적하게 볼 수 있어서요.",행동:{종류:"없음"}},
+ {name:"인상훈",속마음:"어르신 의견도 들어보자",대사:"전기태 어르신 사극도 좋죠. 그래도 다 같이면 화제작 네온 크래시가 무난하지 않을까요?",행동:{종류:"대화",대상:"전기태"}},
+ {name:"전기태",속마음:"저 친구 말도 일리 있네",대사:"거시기, 자네 말도 맞긴 헌디… 나는 시끄러운 건 좀 그려. 조용한 것도 나쁘진 않제.",행동:{종류:"대화",대상:"이다연"}},
+ {name:"이다연",속마음:"어르신이 공감해주셨다",대사:"고요한 파도, 평 좋아요. 어르신도 조용한 거 괜찮다 하시니 그걸로 같이 보실래요?",행동:{종류:"검색",대상:"고요한 파도 상영시간"}},
+ {name:"인상훈",속마음:"두 분이 기우니 맞추자",대사:"좋아요, 두 분이 그쪽이면 저도 고요한 파도로 맞출게요. 제가 앱으로 예매할게요.",행동:{종류:"방문",대상:"롯데시네마 앱"}},
+ {name:"전기태",속마음:"그럼 됐제",대사:"오냐, 그람 고요한 파도로 하세. 표는 자네가 끊어주면 고맙제 잉.",행동:{종류:"없음"}},
+ {name:"이다연",속마음:"조용히 합의됐다",대사:"음, 다행이에요. 그럼 고요한 파도로 정해요.",행동:{종류:"없음"}}];
+const DEMO_VOTES={"인상훈":"고요한 파도","전기태":"고요한 파도","이다연":"고요한 파도"};
+async function playDemo(){if(state.busy)return;state.busy=true;setButtons(false);reset();
+  statusEl.textContent="주민들이 입장합니다…";await entrance();statusEl.textContent="데모 재생 중… (녹화된 협상)";
+  for(const d of DEMO){const t=Object.assign({},d);const obs=envStep(t.행동);if(obs)t.관찰=obs;await showTurn(t);}
+  setActive(null);showResult(DEMO_VOTES);statusEl.textContent="데모 완료 ✓ — 실시간으로 돌리려면 키를 넣고 ⚡ 실시간 실행";
+  state.busy=false;setButtons(true);}
+
+/* ================= 배선 ================= */
+function setButtons(on){document.getElementById("runBtn").disabled=!on;document.getElementById("demoBtn").disabled=!on;}
+document.getElementById("provider").addEventListener("change",e=>{const m={gemini:"gemini-2.0-flash",openai:"gpt-4o-mini",anthropic:"claude-3-5-haiku-latest"};document.getElementById("model").value=m[e.target.value]||"";});
+document.getElementById("runBtn").addEventListener("click",runLive);
+document.getElementById("demoBtn").addEventListener("click",playDemo);
+buildStage();
+setTimeout(entrance,300);
+</script>
+</body>
+</html>
