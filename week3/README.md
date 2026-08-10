@@ -6,7 +6,7 @@
 
 ## 🔗 라이브 데모
 
-**https://imsoowon.github.io/capstone/week03/cinema_stage.html**
+**https://imsoowon.github.io/capstone/week3/cinema_stage.html**
 
 > 페이지에서 **▶ 데모 재생**을 누르면 API 키 없이 바로 재생됩니다.
 
