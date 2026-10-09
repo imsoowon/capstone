@@ -1,6 +1,10 @@
 # week7 · 홍대입구역(홍대) 상권 신규 출점 시뮬레이터
 
-`index.html` 하나로 열리는 도시 시뮬레이터입니다(데이터·코드·이미지 포함, 약 6.6MB). 대상은 서울시 상권분석서비스의 **홍대입구역(홍대) 발달상권**(상권코드 3120103, 46.2만㎡)입니다. 실제 지도 위에서 페르소나가 하루 동안 걸어 다니며 점포를 고르고, 롯데그룹 계열 세븐일레븐의 추가 출점 후보 3곳(A·B·C)을 비교합니다. 페르소나는 **실행할 때마다 Nemotron-Personas-Korea 100만 명 중에서 무작위로 불러옵니다.**
+<p align="center"><a href="https://imsoowon.github.io/capstone/week7/"><img src="https://img.shields.io/badge/%E2%96%B6%20%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%ED%84%B0%20%EC%97%B4%EA%B8%B0-%ED%81%B4%EB%A6%AD-ff4f8b?style=for-the-badge" alt="시뮬레이터 열기" height="48"></a></p>
+
+<p align="center">버튼을 누르면 웹 시뮬레이터가 바로 열립니다 · <a href="https://imsoowon.github.io/capstone/week7/">https://imsoowon.github.io/capstone/week7/</a></p>
+
+[`index.html`](https://imsoowon.github.io/capstone/week7/) 하나로 열리는 도시 시뮬레이터입니다(데이터·코드·이미지 포함, 약 6.6MB). 대상은 서울시 상권분석서비스의 **홍대입구역(홍대) 발달상권**(상권코드 3120103, 46.2만㎡)입니다. 실제 지도 위에서 페르소나가 하루 동안 걸어 다니며 점포를 고르고, 롯데그룹 계열 세븐일레븐의 추가 출점 후보 3곳(A·B·C)을 비교합니다. 페르소나는 **실행할 때마다 Nemotron-Personas-Korea 100만 명 중에서 무작위로 불러옵니다.**
 
 **결론.** 세븐일레븐 추가 출점은 **조건부 보류**입니다. 실사를 한다면 **C(홍대입구역 9번 출구 앞)를 먼저**, A(서교동 서측 공백 골목)를 대안으로 봅니다. C는 방문 수와 브랜드 순증이 모두 가장 컸습니다. 다만 방문의 약 25%는 기존 세븐일레븐에서 옮겨 온 자기잠식이었습니다.
 
